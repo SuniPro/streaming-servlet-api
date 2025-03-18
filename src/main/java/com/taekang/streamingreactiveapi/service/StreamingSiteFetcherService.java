@@ -2,16 +2,15 @@ package com.taekang.streamingreactiveapi.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.taekang.streamingreactiveapi.repository.leagueInfo.SportsLeagueRepository;
 import com.taekang.streamingreactiveapi.restAPI.RestRequest;
+import com.taekang.streamingreactiveapi.tool.Tools;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -21,11 +20,14 @@ import java.util.stream.Collectors;
 public class StreamingSiteFetcherService {
   private final RestRequest restRequest;
   private final ObjectMapper objectMapper;
+  private final SportsLeagueRepository sportsRepository;
 
   @Autowired
-  public StreamingSiteFetcherService(RestRequest restRequest, ObjectMapper objectMapper) {
+  public StreamingSiteFetcherService(
+      RestRequest restRequest, ObjectMapper objectMapper, SportsLeagueRepository sportsRepository) {
     this.restRequest = restRequest;
     this.objectMapper = objectMapper;
+    this.sportsRepository = sportsRepository;
   }
 
   public Mono<String> getGameHTML(String url) {
@@ -42,25 +44,28 @@ public class StreamingSiteFetcherService {
     return restRequest.get(url, headers).flatMap(this::processJsonResponse); // 응답을 처리하는 메서드로 연결
   }
 
-  public Mono<List<Map<String, String>>> getStreamingUrl(List<String> urls) {
+  public Mono<String> getStreamingUrl(String url) {
     HttpHeaders headers = new HttpHeaders();
     headers.add("Accept", "application/json");
-    List<Map<String, String>> errorMapList = new ArrayList<>();
-    Map<String, String> errorResponseMap = new HashMap<>();
-    errorResponseMap.put("liveTitle", "Error");
-    errorResponseMap.put("hlsPath", "Error");
-    errorMapList.add(errorResponseMap);
 
-    return Flux.fromIterable(urls) // 🔥 URL 리스트를 Flux로 변환
-            .flatMap(url -> restRequest.get(url, headers)
-                    .flatMap(this::parseHlsUrl)
-                    .onErrorResume(e -> { // 🔥 요청 실패 시 기본 에러 데이터 반환
-                      log.error("Error processing URL {}: {}", url, e.getMessage());
-                      return Mono.just(errorResponseMap);
-                    })
-            )
-            .collectList() // 🔥 결과를 List로 변환
-            .onErrorReturn(errorMapList); // 🔥 전체 실패 시 errorMapList 반환
+    try {
+      String apiUrl =
+          "https://api.chzzk.naver.com/service/v2/channels/"
+              + Tools.getPathSegments(url, 2)
+              + "/live-detail";
+      return restRequest
+          .get(apiUrl, headers)
+          .flatMap(this::parseHlsUrl)
+          .onErrorResume(
+              e -> {
+                log.error("Error processing URL {}: {}", apiUrl, e.getMessage());
+                return Mono.just("Error");
+              });
+
+    } catch (Exception e) {
+      log.error("Invalid URL {}: {}", url, e.getMessage());
+      return Mono.just("Error");
+    }
   }
 
   private Mono<Object> processJsonResponse(String json) {
@@ -88,7 +93,8 @@ public class StreamingSiteFetcherService {
 
   private Mono<List<Map<String, Object>>> convertListJson(String json) {
     try {
-      List<Map<String, Object>> responseList = objectMapper.readValue(json, new TypeReference<>() {});
+      List<Map<String, Object>> responseList =
+          objectMapper.readValue(json, new TypeReference<>() {});
       return Mono.just(responseList);
     } catch (Exception e) {
       return Mono.error(new RuntimeException("JSON 배열 변환 오류", e));
@@ -97,7 +103,8 @@ public class StreamingSiteFetcherService {
 
   public List<String> extractHLSPaths(Map<String, Object> livePlaybackJson) {
     if (livePlaybackJson.containsKey("media") && livePlaybackJson.get("media") instanceof List) {
-      List<Map<String, Object>> mediaList = (List<Map<String, Object>>) livePlaybackJson.get("media");
+      List<Map<String, Object>> mediaList =
+          (List<Map<String, Object>>) livePlaybackJson.get("media");
 
       return mediaList.stream()
           .filter(
@@ -110,29 +117,30 @@ public class StreamingSiteFetcherService {
     return List.of(); // media가 없으면 빈 리스트 반환
   }
 
-  private Mono<Map<String, String>> parseHlsUrl(String json) {
-    Map<String, String> streamingInfoMap = new HashMap<>();
+  private Mono<String> parseHlsUrl(String json) {
+    String hlsPath = "";
     try {
       Map<String, Object> responseMap = objectMapper.readValue(json, new TypeReference<>() {});
       if (responseMap.containsKey("content") && responseMap.get("content") instanceof Map) {
         Map<String, Object> contentMap = (Map<String, Object>) responseMap.get("content");
-
-        streamingInfoMap.put("liveTitle", contentMap.get("liveTitle").toString());
-
-        if (contentMap.containsKey("livePlaybackJson") && contentMap.get("livePlaybackJson") instanceof String) {
-          Map<String, Object> livePlaybackJsonMap = objectMapper.readValue(contentMap.get("livePlaybackJson").toString(), new TypeReference<>() {});
+        if (contentMap.containsKey("livePlaybackJson")
+            && contentMap.get("livePlaybackJson") instanceof String) {
+          Map<String, Object> livePlaybackJsonMap =
+              objectMapper.readValue(
+                  contentMap.get("livePlaybackJson").toString(), new TypeReference<>() {});
           contentMap.put("livePlaybackJson", livePlaybackJsonMap);
 
           // 🔥 HLS media에서 path 값만 추출
           List<String> hlsPaths = extractHLSPaths(livePlaybackJsonMap);
           log.info("Extracted HLS Paths: {}", hlsPaths);
-          streamingInfoMap.put("hlsPath", hlsPaths.get(0));
+
+          hlsPath = hlsPaths.get(0);
         }
       }
     } catch (Exception e) {
       return Mono.error(e);
     }
 
-    return Mono.just(streamingInfoMap);
+    return Mono.just(hlsPath);
   }
 }

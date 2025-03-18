@@ -1,0 +1,22 @@
+CREATE TABLE sports_league (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,  -- 🔥 id 자동증가 (0부터 시작)
+    sports_type VARCHAR(25) NOT NULL,
+    league_name VARCHAR(255) NOT NULL,          -- 리그 이름
+    streams_url VARCHAR(500) NOT NULL,          -- 스트리밍 URL
+    league_date DATE NOT NULL,                  -- 리그 날짜
+    home_name VARCHAR(255) NOT NULL,            -- 홈팀 이름
+    away_name VARCHAR(255) NOT NULL,            -- 원정팀 이름
+) AUTO_INCREMENT = 0;  -- 🔥 id 자동 증가를 0부터 시작
+
+
+CREATE TABLE sports_league_betting (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    sport_league_id INT UNSIGNED NOT NULL,  -- 🔥 ESports 테이블의 FK
+    betting_type VARCHAR(255) NOT NULL,
+    betting_name VARCHAR(255) NOT NULL,
+    home_odds_name VARCHAR(255) NOT NULL,
+    home_odds DECIMAL(10,2) NOT NULL,
+    away_odds_name VARCHAR(255) NOT NULL,
+    away_odds DECIMAL(10,2) NOT NULL,
+    FOREIGN KEY (e_sport_id) REFERENCES e_sports(id) ON DELETE CASCADE
+) AUTO_INCREMENT = 0;

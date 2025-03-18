@@ -37,6 +37,7 @@ public class RestRequestImpl implements RestRequest {
 
     @Override
     public Mono<String> get(String url, HttpHeaders headers) {
+
         return webClient.get()
                 .uri(url)
                 .headers(httpHeaders -> httpHeaders.addAll(new HttpHeaders(headers))) // 기존 헤더 추가

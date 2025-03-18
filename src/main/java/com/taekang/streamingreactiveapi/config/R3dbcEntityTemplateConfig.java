@@ -7,51 +7,55 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories;
 import org.springframework.r2dbc.connection.R2dbcTransactionManager;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.transaction.ReactiveTransactionManager;
 
 @Configuration
+@EnableR2dbcRepositories(
+        basePackages = "com.taekang.streamingreactiveapi.repository.leagueInfo"
+)
 public class R3dbcEntityTemplateConfig {
 
     @Bean
-    @ConfigurationProperties(prefix = "spring.r2dbc.esports")
+    @ConfigurationProperties(prefix = "spring.r2dbc.streaming")
     public ConnectionFactory leagueInfoConnectionFactory() {
         return ConnectionFactories.get(ConnectionFactoryOptions.builder()
                 .option(ConnectionFactoryOptions.DRIVER, "mariadb")
                 .option(ConnectionFactoryOptions.HOST, "localhost")
                 .option(ConnectionFactoryOptions.PORT, 3306)
-                .option(ConnectionFactoryOptions.DATABASE, "league_info")
+                .option(ConnectionFactoryOptions.DATABASE, "streaming")
                 .option(ConnectionFactoryOptions.USER, "root")
                 .option(ConnectionFactoryOptions.PASSWORD, "250225")
                 .build());
     }
 
     @Bean
-    @ConfigurationProperties(prefix = "spring.r2dbc.bj")
-    public ConnectionFactory casinoConnectionFactory() {
+    @ConfigurationProperties(prefix = "spring.r2dbc.user")
+    public ConnectionFactory userConnectionFactory() {
         return ConnectionFactories.get(ConnectionFactoryOptions.builder()
                 .option(ConnectionFactoryOptions.DRIVER, "mariadb")
                 .option(ConnectionFactoryOptions.HOST, "localhost")
                 .option(ConnectionFactoryOptions.PORT, 3306)
-                .option(ConnectionFactoryOptions.DATABASE, "game")
+                .option(ConnectionFactoryOptions.DATABASE, "user")
                 .option(ConnectionFactoryOptions.USER, "root")
                 .option(ConnectionFactoryOptions.PASSWORD, "250225")
                 .build());
     }
 
     @Bean
-    public DatabaseClient leagueDatabaseClient(@Qualifier("leagueInfoConnectionFactory") ConnectionFactory connectionFactory) {
+    public DatabaseClient leagueInfoDatabaseClient(@Qualifier("leagueInfoConnectionFactory") ConnectionFactory connectionFactory) {
         return DatabaseClient.create(connectionFactory);
     }
 
     @Bean
-    public ReactiveTransactionManager leagueTransactionManager(@Qualifier("leagueInfoConnectionFactory") ConnectionFactory connectionFactory) {
+    public ReactiveTransactionManager leagueInfoTransactionManager(@Qualifier("leagueInfoConnectionFactory") ConnectionFactory connectionFactory) {
         return new R2dbcTransactionManager(connectionFactory);
     }
 
     @Bean
-    public ReactiveTransactionManager casinoTransactionManager(@Qualifier("casinoConnectionFactory") ConnectionFactory connectionFactory) {
+    public ReactiveTransactionManager userTransactionManager(@Qualifier("userConnectionFactory") ConnectionFactory connectionFactory) {
         return new R2dbcTransactionManager(connectionFactory);
     }
 }
