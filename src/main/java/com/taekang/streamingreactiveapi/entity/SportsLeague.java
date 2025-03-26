@@ -21,14 +21,29 @@ public class SportsLeague {
   @Column("id")
   private Long id;
 
+  @Column("channel_name")
+  private String channelName;
+
+  @Column("live_title")
+  private String liveTitle;
+
+  @Column("thumbnail_url")
+  private String thumbnailUrl;
+
   @Column("sports_type")
   private SportsType sportsType;
+
+  @Column("sports_type_sub")
+  private String sportsTypeSub;
 
   @Column("league_name")
   private String leagueName;
 
   @Column("stream_url")
   private String streamUrl;
+
+  @Column("stream_url_sub")
+  private String streamUrlSub;
 
   @Column("league_date")
   private LocalDateTime leagueDate;
@@ -41,4 +56,7 @@ public class SportsLeague {
 
   @Column("important")
   private boolean important;
+
+  @Column("live")
+  private boolean live;
 }

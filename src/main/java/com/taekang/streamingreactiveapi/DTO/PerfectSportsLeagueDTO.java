@@ -14,11 +14,21 @@ public class PerfectSportsLeagueDTO {
 
     private Long id;
 
+    private String channelName;
+
+    private String liveTitle;
+
+    private String thumbnailUrl;
+
     private SportsType sportsType;
+    
+    private String sportsTypeSub;
 
     private String leagueName;
 
     private String streamUrl;
+
+    private String streamUrlSub;
 
     private LocalDateTime leagueDate;
 
@@ -28,5 +38,7 @@ public class PerfectSportsLeagueDTO {
 
     private boolean important;
 
-    private List<SportsLeagueBettingDTO> bettingDTOList;
+    private boolean live;
+
+    private List<SportsLeagueBettingDTO> bettingList;
 }
