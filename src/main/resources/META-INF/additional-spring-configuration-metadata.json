@@ -14,5 +14,30 @@
       "name": "spring.r2dbc.streaming.password",
       "type": "java.lang.String",
       "description": "Description for spring.r2dbc.streaming.password."
+    },
+    {
+      "name": "riot.api.key",
+      "type": "java.lang.String",
+      "description": "Description for riot.api.key."
+    },
+    {
+      "name": "spring.r2dbc.user.url",
+      "type": "java.lang.String",
+      "description": "Description for spring.r2dbc.user.url."
+    },
+    {
+      "name": "spring.r2dbc.user.username",
+      "type": "java.lang.String",
+      "description": "Description for spring.r2dbc.user.username."
+    },
+    {
+      "name": "spring.r2dbc.user.password",
+      "type": "java.lang.String",
+      "description": "Description for spring.r2dbc.user.password."
+    },
+    {
+      "name": "streaming.parse.url",
+      "type": "java.lang.String",
+      "description": "Description for streaming.parse.url."
     }
   ] }

@@ -5,8 +5,6 @@ import reactor.core.publisher.Mono;
 
 public interface RestRequest {
 
-    Mono<String> post(String url, HttpHeaders headers, String body);
-
     Mono<String> get(String url, HttpHeaders headers);
 
     Mono<String> delete(String url, HttpHeaders headers);

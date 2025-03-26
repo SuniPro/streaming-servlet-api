@@ -18,23 +18,7 @@ public class RestRequestImpl implements RestRequest {
     public RestRequestImpl(WebClient.Builder webClientBuilder) {
         this.webClient = webClientBuilder.build();
     }
-
-    @Override
-    public Mono<String> post(String url, HttpHeaders headers, String body) {
-        return webClient.post()
-                .uri(url)
-                .headers(httpHeaders -> httpHeaders.addAll(new HttpHeaders(headers))) // 기존 헤더 추가
-                .bodyValue(body)
-                .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError, response ->
-                        Mono.error(new RuntimeException("클라이언트 오류 발생: " + response.statusCode()))
-                )
-                .onStatus(HttpStatusCode::is5xxServerError, response ->
-                        Mono.error(new RuntimeException("서버 오류 발생: " + response.statusCode()))
-                )
-                .bodyToMono(String.class);
-    }
-
+    
     @Override
     public Mono<String> get(String url, HttpHeaders headers) {
 

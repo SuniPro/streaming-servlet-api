@@ -16,7 +16,7 @@ import org.springframework.transaction.ReactiveTransactionManager;
 @EnableR2dbcRepositories(
         basePackages = "com.taekang.streamingreactiveapi.repository.leagueInfo"
 )
-public class R3dbcEntityTemplateConfig {
+public class R2dbcEntityTemplateConfig {
 
     @Bean
     @ConfigurationProperties(prefix = "spring.r2dbc.streaming")
