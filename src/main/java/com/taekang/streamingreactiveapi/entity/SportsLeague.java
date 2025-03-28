@@ -1,20 +1,17 @@
 package com.taekang.streamingreactiveapi.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import java.time.LocalDateTime;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
-
-import java.time.LocalDateTime;
 
 @Table("sports_league")
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder(toBuilder = true)
+@ToString
 public class SportsLeague {
 
   @Id
@@ -49,10 +46,10 @@ public class SportsLeague {
   private LocalDateTime leagueDate;
 
   @Column("home_name")
-  private String home_name;
+  private String homeName;
 
   @Column("away_name")
-  private String away_name;
+  private String awayName;
 
   @Column("important")
   private boolean important;

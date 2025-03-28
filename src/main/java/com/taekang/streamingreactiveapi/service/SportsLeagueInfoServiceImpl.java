@@ -1,8 +1,6 @@
 package com.taekang.streamingreactiveapi.service;
 
-import com.taekang.streamingreactiveapi.DTO.PerfectSportsLeagueDTO;
-import com.taekang.streamingreactiveapi.DTO.SportsLeagueBettingDTO;
-import com.taekang.streamingreactiveapi.DTO.SportsLeagueDTO;
+import com.taekang.streamingreactiveapi.DTO.*;
 import com.taekang.streamingreactiveapi.entity.SportsLeague;
 import com.taekang.streamingreactiveapi.entity.SportsLeagueBetting;
 import com.taekang.streamingreactiveapi.entity.SportsType;
@@ -12,7 +10,6 @@ import io.r2dbc.spi.R2dbcException;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
@@ -83,17 +80,24 @@ public class SportsLeagueInfoServiceImpl implements SportsLeagueInfoService {
                             .streamUrl(streamUrl)
                             .leagueDate(leagueDate)
                             .leagueName(dto.getLeagueName())
-                            .home_name(dto.getHome_name())
-                            .away_name(dto.getAway_name())
+                            .homeName(dto.getHomeName())
+                            .awayName(dto.getAwayName())
                             .important(dto.isImportant())
+                            .live(dto.isLive())
                             .build();
 
                     return sportsLeagueRepository
                         .save(sportsLeague)
                         .flatMap(
                             savedLeague -> {
+                              List<SportsLeagueBettingDTO> bettingDTOs = dto.getBettingList();
+
+                              if (bettingDTOs == null || bettingDTOs.isEmpty()) {
+                                return Mono.just(dto); // 아무 작업 안 하고 dto 반환
+                              }
+
                               List<SportsLeagueBetting> bettingList =
-                                  dto.getBettingList().stream()
+                                  bettingDTOs.stream()
                                       .map(
                                           bettingDTO ->
                                               SportsLeagueBetting.builder()
@@ -113,6 +117,84 @@ public class SportsLeagueInfoServiceImpl implements SportsLeagueInfoService {
                             });
                   });
             });
+  }
+
+  @Override
+  public Mono<SportsLeague> updateSportsLeague(SportsLeagueDTO sportsLeagueDTO) {
+    SportsLeague sportsLeague =
+        SportsLeague.builder()
+            .id(sportsLeagueDTO.getId())
+            .channelName(sportsLeagueDTO.getChannelName())
+            .liveTitle(sportsLeagueDTO.getLiveTitle())
+            .thumbnailUrl(sportsLeagueDTO.getThumbnailUrl())
+            .sportsType(sportsLeagueDTO.getSportsType())
+            .sportsTypeSub(sportsLeagueDTO.getSportsTypeSub())
+            .leagueName(sportsLeagueDTO.getLeagueName())
+            .streamUrl(sportsLeagueDTO.getStreamUrl())
+            .streamUrlSub(sportsLeagueDTO.getStreamUrlSub())
+            .leagueDate(sportsLeagueDTO.getLeagueDate())
+            .homeName(sportsLeagueDTO.getHomeName())
+            .awayName(sportsLeagueDTO.getAwayName())
+            .important(sportsLeagueDTO.isImportant())
+            .liveTitle(sportsLeagueDTO.getLiveTitle())
+            .build();
+    return sportsLeagueRepository.save(sportsLeague);
+  }
+
+  @Override
+  public Mono<SportsLeague> updateLive(LeagueLiveDTO leagueLiveDTO) {
+    return sportsLeagueRepository
+        .findById(leagueLiveDTO.getId())
+        .flatMap(
+            (sportsLeague -> {
+              SportsLeague newLeague =
+                  SportsLeague.builder()
+                      .id(leagueLiveDTO.getId())
+                      .channelName(sportsLeague.getChannelName())
+                      .liveTitle(sportsLeague.getLiveTitle())
+                      .thumbnailUrl(sportsLeague.getThumbnailUrl())
+                      .sportsType(sportsLeague.getSportsType())
+                      .sportsTypeSub(sportsLeague.getSportsTypeSub())
+                      .leagueName(sportsLeague.getLeagueName())
+                      .streamUrl(sportsLeague.getStreamUrl())
+                      .streamUrlSub(sportsLeague.getStreamUrlSub())
+                      .leagueDate(sportsLeague.getLeagueDate())
+                      .homeName(sportsLeague.getHomeName())
+                      .awayName(sportsLeague.getAwayName())
+                      .important(sportsLeague.isImportant())
+                      .live(leagueLiveDTO.isLive())
+                      .build();
+
+              return sportsLeagueRepository.save(newLeague);
+            }));
+  }
+
+  @Override
+  public Mono<SportsLeague> updateImportant(LeagueImportantDTO importantDTO) {
+    return sportsLeagueRepository
+        .findById(importantDTO.getId())
+        .flatMap(
+            (sportsLeague -> {
+              SportsLeague newLeague =
+                  SportsLeague.builder()
+                      .id(importantDTO.getId())
+                      .channelName(sportsLeague.getChannelName())
+                      .liveTitle(sportsLeague.getLiveTitle())
+                      .thumbnailUrl(sportsLeague.getThumbnailUrl())
+                      .sportsType(sportsLeague.getSportsType())
+                      .sportsTypeSub(sportsLeague.getSportsTypeSub())
+                      .leagueName(sportsLeague.getLeagueName())
+                      .streamUrl(sportsLeague.getStreamUrl())
+                      .streamUrlSub(sportsLeague.getStreamUrlSub())
+                      .leagueDate(sportsLeague.getLeagueDate())
+                      .homeName(sportsLeague.getHomeName())
+                      .awayName(sportsLeague.getAwayName())
+                      .important(importantDTO.isImportant())
+                      .live(sportsLeague.isLive())
+                      .build();
+
+              return sportsLeagueRepository.save(newLeague);
+            }));
   }
 
   @Override
@@ -158,12 +240,10 @@ public class SportsLeagueInfoServiceImpl implements SportsLeagueInfoService {
   }
 
   @Override
-  public Mono<List<SportsLeagueDTO>> getAllSportsLeague(int page, int size) {
+  public Mono<List<SportsLeagueDTO>> getAllSportsLeagueIsLive(int page, int size) {
     try {
       int offset = page * size;
       LocalDate yesterday = LocalDate.now().minusDays(1);
-      LocalDateTime startOfYesterday = yesterday.atStartOfDay();
-      LocalDateTime endOfYesterday = yesterday.atTime(LocalTime.MAX);
 
       return r2dbcEntityTemplate
           .select(SportsLeague.class)
@@ -174,14 +254,37 @@ public class SportsLeagueInfoServiceImpl implements SportsLeagueInfoService {
                   .offset(offset))
           .all()
           .map(league -> modelMapper.map(league, SportsLeagueDTO.class)) // 💡 개별 변환
-          .collectList();
+          .collectList().doOnNext(body -> log.info("GET DATA SUCCESS {} " , body));
     } catch (R2dbcException e) {
       log.error("Database error: {}", e.getMessage());
       return Mono.error(new RuntimeException("Database error occurred", e));
     }
   }
 
-  @Override
+    @Override
+    public Mono<List<SportsLeagueDTO>> getAllSportsLeague(int page, int size) {
+        try {
+            int offset = page * size;
+
+            return r2dbcEntityTemplate
+                    .select(SportsLeague.class)
+                    .matching(
+                            Query.query(Criteria.empty())
+                                    .sort(Sort.by(Sort.Order.desc("league_date")).and(Sort.by(Sort.Order.desc("id"))))
+                                    .limit(size)
+                                    .offset(offset))
+                    .all()
+                    .map(league -> {
+                        log.info("GET ALL League {}", league.toString());
+                        return modelMapper.map(league, SportsLeagueDTO.class);}) // 💡 개별 변환
+                    .collectList().doOnNext(body -> log.info("GET DATA SUCCESS {} " , body));
+        } catch (R2dbcException e) {
+            log.error("Database error: {}", e.getMessage());
+            return Mono.error(new RuntimeException("Database error occurred", e));
+        }
+    }
+
+    @Override
   public Mono<List<PerfectSportsLeagueDTO>> getLeagueInfoBySportsType(
       SportsType sportsType, int page, int size) {
     try {
@@ -227,8 +330,8 @@ public class SportsLeagueInfoServiceImpl implements SportsLeagueInfoService {
                                     .streamUrl(league.getStreamUrl())
                                     .streamUrlSub(league.getStreamUrlSub())
                                     .leagueDate(league.getLeagueDate())
-                                    .home_name(league.getHome_name())
-                                    .away_name(league.getAway_name())
+                                    .homeName(league.getHomeName())
+                                    .awayName(league.getAwayName())
                                     .important(league.isImportant())
                                     .live(league.isLive())
                                     .bettingList(bettingDTOList) // DTO 리스트 설정
@@ -270,13 +373,19 @@ public class SportsLeagueInfoServiceImpl implements SportsLeagueInfoService {
 
                           return PerfectSportsLeagueDTO.builder()
                               .id(league.getId())
+                              .channelName(league.getChannelName())
+                              .liveTitle(league.getLiveTitle())
+                              .thumbnailUrl(league.getThumbnailUrl())
                               .sportsType(league.getSportsType())
+                              .sportsTypeSub(league.getSportsTypeSub())
                               .leagueName(league.getLeagueName())
                               .streamUrl(league.getStreamUrl())
+                              .streamUrlSub(league.getStreamUrlSub())
                               .leagueDate(league.getLeagueDate())
-                              .home_name(league.getHome_name())
-                              .away_name(league.getAway_name())
+                              .homeName(league.getHomeName())
+                              .awayName(league.getAwayName())
                               .important(league.isImportant())
+                              .live(league.isLive())
                               .bettingList(bettingDTOList)
                               .build();
                         }));

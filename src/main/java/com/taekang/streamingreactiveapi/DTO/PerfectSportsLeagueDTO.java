@@ -1,44 +1,47 @@
 package com.taekang.streamingreactiveapi.DTO;
 
 import com.taekang.streamingreactiveapi.entity.SportsType;
+import jakarta.annotation.Nullable;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
 @Builder(toBuilder = true)
+@ToString
 public class PerfectSportsLeagueDTO {
 
-    private Long id;
+  private Long id;
 
-    private String channelName;
+  private String channelName;
 
-    private String liveTitle;
+  private String liveTitle;
 
-    private String thumbnailUrl;
+  private String thumbnailUrl;
 
-    private SportsType sportsType;
-    
-    private String sportsTypeSub;
+  private SportsType sportsType;
 
-    private String leagueName;
+  private String sportsTypeSub;
 
-    private String streamUrl;
+  private String leagueName;
 
-    private String streamUrlSub;
+  private String streamUrl;
 
-    private LocalDateTime leagueDate;
+  private String streamUrlSub;
 
-    private String home_name;
+  private LocalDateTime leagueDate;
 
-    private String away_name;
+  private String homeName;
 
-    private boolean important;
+  private String awayName;
 
-    private boolean live;
+  private boolean important;
 
-    private List<SportsLeagueBettingDTO> bettingList;
+  private boolean live;
+
+  @Nullable private List<SportsLeagueBettingDTO> bettingList;
 }

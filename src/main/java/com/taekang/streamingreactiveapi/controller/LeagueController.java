@@ -1,5 +1,7 @@
 package com.taekang.streamingreactiveapi.controller;
 
+import com.taekang.streamingreactiveapi.DTO.LeagueImportantDTO;
+import com.taekang.streamingreactiveapi.DTO.LeagueLiveDTO;
 import com.taekang.streamingreactiveapi.DTO.PerfectSportsLeagueDTO;
 import com.taekang.streamingreactiveapi.DTO.SportsLeagueDTO;
 import com.taekang.streamingreactiveapi.entity.SportsLeague;
@@ -30,9 +32,28 @@ public class LeagueController {
     return sportsLeagueInfoService.createSportsLeague(perfectSportsLeagueDTOList);
   }
 
+  @PostMapping("update/important")
+  public Mono<SportsLeague> updateLeagueImportant(
+          @RequestBody LeagueImportantDTO leagueImportantDTO) {
+
+    return sportsLeagueInfoService.updateImportant(leagueImportantDTO);
+  }
+
+  @PostMapping("update/live")
+  public Mono<SportsLeague> updateLeagueLive(
+          @RequestBody LeagueLiveDTO leagueLiveDTO) {
+
+    return sportsLeagueInfoService.updateLive(leagueLiveDTO);
+  }
+
   @GetMapping("read/all/by/important")
   public Flux<SportsLeague> getAllLeagueInfoByImportant() {
     return sportsLeagueInfoService.getAllLeagueInfoByImportant();
+  }
+
+  @GetMapping("read/live/all/{page}/{size}")
+  public Mono<List<SportsLeagueDTO>> getAllLeagueInfoIsLive(@PathVariable int page, @PathVariable int size) {
+    return sportsLeagueInfoService.getAllSportsLeagueIsLive(page, size);
   }
 
   @GetMapping("read/all/{page}/{size}")
@@ -51,10 +72,9 @@ public class LeagueController {
     return sportsLeagueInfoService.getLeagueInfoById(id);
   }
 
-  @DeleteMapping("read/by/{id}")
+  @DeleteMapping("delete/by/{id}")
   public Mono<Void> deleteLeagueInfoById(@PathVariable Long id) {
     return sportsLeagueInfoService.deleteLeagueInfoById(id);
   }
 
-  
 }

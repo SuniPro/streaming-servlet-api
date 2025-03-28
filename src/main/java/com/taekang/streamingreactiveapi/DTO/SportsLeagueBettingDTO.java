@@ -8,6 +8,7 @@ import lombok.*;
 @Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class SportsLeagueBettingDTO {
     private Long id;
 

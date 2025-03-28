@@ -4,9 +4,11 @@ import com.taekang.streamingreactiveapi.entity.SportsType;
 import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
+@ToString
 public class SportsLeagueDTO {
 
     private Long id;
@@ -25,8 +27,8 @@ public class SportsLeagueDTO {
     private String streamUrlSub;
     private LocalDateTime leagueDate;
 
-    private String home_name;
-    private String away_name;
+    private String homeName;
+    private String awayName;
     private boolean important;
     private boolean live;
 }
