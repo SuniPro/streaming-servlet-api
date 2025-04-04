@@ -254,37 +254,41 @@ public class SportsLeagueInfoServiceImpl implements SportsLeagueInfoService {
                   .offset(offset))
           .all()
           .map(league -> modelMapper.map(league, SportsLeagueDTO.class)) // 💡 개별 변환
-          .collectList().doOnNext(body -> log.info("GET DATA SUCCESS {} " , body));
+          .collectList()
+          .doOnNext(body -> log.info("GET DATA SUCCESS {} ", body));
     } catch (R2dbcException e) {
       log.error("Database error: {}", e.getMessage());
       return Mono.error(new RuntimeException("Database error occurred", e));
     }
   }
 
-    @Override
-    public Mono<List<SportsLeagueDTO>> getAllSportsLeague(int page, int size) {
-        try {
-            int offset = page * size;
+  @Override
+  public Mono<List<SportsLeagueDTO>> getAllSportsLeague(int page, int size) {
+    try {
+      int offset = page * size;
 
-            return r2dbcEntityTemplate
-                    .select(SportsLeague.class)
-                    .matching(
-                            Query.query(Criteria.empty())
-                                    .sort(Sort.by(Sort.Order.desc("league_date")).and(Sort.by(Sort.Order.desc("id"))))
-                                    .limit(size)
-                                    .offset(offset))
-                    .all()
-                    .map(league -> {
-                        log.info("GET ALL League {}", league.toString());
-                        return modelMapper.map(league, SportsLeagueDTO.class);}) // 💡 개별 변환
-                    .collectList().doOnNext(body -> log.info("GET DATA SUCCESS {} " , body));
-        } catch (R2dbcException e) {
-            log.error("Database error: {}", e.getMessage());
-            return Mono.error(new RuntimeException("Database error occurred", e));
-        }
+      return r2dbcEntityTemplate
+          .select(SportsLeague.class)
+          .matching(
+              Query.query(Criteria.empty())
+                  .sort(Sort.by(Sort.Order.desc("league_date")).and(Sort.by(Sort.Order.desc("id"))))
+                  .limit(size)
+                  .offset(offset))
+          .all()
+          .map(
+              league -> {
+                log.info("GET ALL League {}", league.toString());
+                return modelMapper.map(league, SportsLeagueDTO.class);
+              }) // 💡 개별 변환
+          .collectList()
+          .doOnNext(body -> log.info("GET DATA SUCCESS {} ", body));
+    } catch (R2dbcException e) {
+      log.error("Database error: {}", e.getMessage());
+      return Mono.error(new RuntimeException("Database error occurred", e));
     }
+  }
 
-    @Override
+  @Override
   public Mono<List<PerfectSportsLeagueDTO>> getLeagueInfoBySportsType(
       SportsType sportsType, int page, int size) {
     try {

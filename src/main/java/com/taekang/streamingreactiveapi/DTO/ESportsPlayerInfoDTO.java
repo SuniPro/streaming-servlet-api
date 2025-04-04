@@ -11,17 +11,17 @@ import lombok.*;
 @ToString
 public class ESportsPlayerInfoDTO {
 
-    private String PlayerName;
+  private String PlayerName;
 
-    private int matchLength;
+  private int matchLength;
 
-    private int firstKillLength;
+  private int firstKillLength;
 
-    private BigDecimal firstKillRatio;
+  private BigDecimal firstKillRatio;
 
-    private int winLength;
+  private int winLength;
 
-    private BigDecimal winRatio;
+  private BigDecimal winRatio;
 
-    private int killLength;
+  private int killLength;
 }

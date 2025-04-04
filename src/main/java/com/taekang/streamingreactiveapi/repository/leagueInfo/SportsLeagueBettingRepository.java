@@ -7,5 +7,5 @@ import reactor.core.publisher.Flux;
 
 @Repository
 public interface SportsLeagueBettingRepository extends R2dbcRepository<SportsLeagueBetting, Long> {
-    Flux<SportsLeagueBetting> findBySportsLeagueId(Long sportsLeagueId);
+  Flux<SportsLeagueBetting> findBySportsLeagueId(Long sportsLeagueId);
 }

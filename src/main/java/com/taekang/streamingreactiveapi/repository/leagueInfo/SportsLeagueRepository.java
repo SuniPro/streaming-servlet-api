@@ -8,6 +8,7 @@ import reactor.core.publisher.Flux;
 
 @Repository
 public interface SportsLeagueRepository extends R2dbcRepository<SportsLeague, Long> {
-    Flux<SportsLeague> findAllByImportant(boolean important);
-    Flux<SportsLeague> findByLeagueNameAndLeagueDate(String leagueName, LocalDateTime leagueDate);
+  Flux<SportsLeague> findAllByImportant(boolean important);
+
+  Flux<SportsLeague> findByLeagueNameAndLeagueDate(String leagueName, LocalDateTime leagueDate);
 }

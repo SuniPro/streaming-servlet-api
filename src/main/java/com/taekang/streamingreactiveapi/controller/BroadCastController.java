@@ -20,64 +20,65 @@ import reactor.core.publisher.Mono;
 @RequestMapping("broadcast")
 public class BroadCastController {
 
-    private final WebClient webClient;
+  private final WebClient webClient;
 
-    @Autowired
-    public BroadCastController(WebClient.Builder webClientBuilder) {
-        this.webClient = webClientBuilder.build();
-    }
+  @Autowired
+  public BroadCastController(WebClient.Builder webClientBuilder) {
+    this.webClient = webClientBuilder.build();
+  }
 
-    @GetMapping("soop")
-    public Mono<ResponseEntity<String>> getSoopStreamingUrl(@RequestParam String url) {
-        String baseCdnUrl = url.substring(0, url.lastIndexOf("/") + 1);
-        String encodedBase = Base64.getUrlEncoder().encodeToString(baseCdnUrl.getBytes(StandardCharsets.UTF_8));
+  @GetMapping("soop")
+  public Mono<ResponseEntity<String>> getSoopStreamingUrl(@RequestParam String url) {
+    String baseCdnUrl = url.substring(0, url.lastIndexOf("/") + 1);
+    String encodedBase =
+        Base64.getUrlEncoder().encodeToString(baseCdnUrl.getBytes(StandardCharsets.UTF_8));
 
-        return webClient.get()
-                .uri(url)
-                .retrieve()
-                .bodyToMono(String.class)
-                .map(originalM3u8 -> {
+    return webClient
+        .get()
+        .uri(url)
+        .retrieve()
+        .bodyToMono(String.class)
+        .map(
+            originalM3u8 -> {
+              String rewritten =
+                  Arrays.stream(originalM3u8.split("\n"))
+                      .map(String::trim)
+                      .map(
+                          line -> {
+                            if (line.toLowerCase().endsWith(".ts")) {
+                              return "/streaming/broadcast/ts/" + encodedBase + "/" + line;
+                            }
+                            return line;
+                          })
+                      .collect(Collectors.joining("\n"));
 
-                    String rewritten = Arrays.stream(originalM3u8.split("\n"))
-                            .map(String::trim)
-                            .map(line -> {
-                                if (line.toLowerCase().endsWith(".ts")) {
-                                    return "/streaming/broadcast/ts/" + encodedBase + "/" + line;
-                                }
-                                return line;
-                            })
-                            .collect(Collectors.joining("\n"));
+              return ResponseEntity.ok()
+                  .header(HttpHeaders.CONTENT_TYPE, "application/vnd.apple.mpegurl")
+                  .body(rewritten);
+            });
+  }
 
+  // 🎯 실제 .ts 파일 프록시 처리
+  @GetMapping("ts/{encodedBase}/**")
+  public Mono<ResponseEntity<Flux<DataBuffer>>> proxyTsFile(
+      @PathVariable String encodedBase, ServerHttpRequest request) {
+    // 전체 경로
+    String fullPath = request.getURI().getPath();
+    String basePrefix = "/broadcast/ts/" + encodedBase + "/";
 
-                    return ResponseEntity.ok()
-                            .header(HttpHeaders.CONTENT_TYPE, "application/vnd.apple.mpegurl")
-                            .body(rewritten);
-                });
-    }
+    // .ts 파일 경로 추출
+    String tsPath = fullPath.substring(fullPath.indexOf(basePrefix) + basePrefix.length());
 
-    // 🎯 실제 .ts 파일 프록시 처리
-    @GetMapping("ts/{encodedBase}/**")
-    public Mono<ResponseEntity<Flux<DataBuffer>>> proxyTsFile(
-            @PathVariable String encodedBase,
-            ServerHttpRequest request
-    ) {
-        // 전체 경로
-        String fullPath = request.getURI().getPath();
-        String basePrefix = "/broadcast/ts/" + encodedBase + "/";
+    // base64 디코딩
+    String baseCdnUrl =
+        new String(Base64.getUrlDecoder().decode(encodedBase), StandardCharsets.UTF_8);
 
-        // .ts 파일 경로 추출
-        String tsPath = fullPath.substring(fullPath.indexOf(basePrefix) + basePrefix.length());
+    String originUrl = baseCdnUrl + tsPath;
+    log.info("🎯 [proxy] originUrl: {}", originUrl);
 
-        // base64 디코딩
-        String baseCdnUrl = new String(Base64.getUrlDecoder().decode(encodedBase), StandardCharsets.UTF_8);
-
-        String originUrl = baseCdnUrl + tsPath;
-        log.info("🎯 [proxy] originUrl: {}", originUrl);
-
-        return Mono.just(
-                ResponseEntity.ok()
-                        .header(HttpHeaders.CONTENT_TYPE, "video/MP2T")
-                        .body(webClient.get().uri(originUrl).retrieve().bodyToFlux(DataBuffer.class))
-        );
-    }
+    return Mono.just(
+        ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_TYPE, "video/MP2T")
+            .body(webClient.get().uri(originUrl).retrieve().bodyToFlux(DataBuffer.class)));
+  }
 }

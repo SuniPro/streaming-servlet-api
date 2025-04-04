@@ -10,11 +10,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("streaming/fetch")
 public class StreamingController {
 
-    private final StreamingSiteFetcherService streamingSiteFetcherService;
+  private final StreamingSiteFetcherService streamingSiteFetcherService;
 
-    @Autowired
-    public StreamingController(StreamingSiteFetcherService streamingSiteFetcherService) {
-        this.streamingSiteFetcherService = streamingSiteFetcherService;
-    }
-
+  @Autowired
+  public StreamingController(StreamingSiteFetcherService streamingSiteFetcherService) {
+    this.streamingSiteFetcherService = streamingSiteFetcherService;
+  }
 }

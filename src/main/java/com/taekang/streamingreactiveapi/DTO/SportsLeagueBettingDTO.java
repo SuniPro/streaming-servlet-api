@@ -10,18 +10,17 @@ import lombok.*;
 @AllArgsConstructor
 @ToString
 public class SportsLeagueBettingDTO {
-    private Long id;
+  private Long id;
 
-    private Long sportsLeagueId;
+  private Long sportsLeagueId;
 
-    private String bettingType;
+  private String bettingType;
 
-    private String bettingName;
+  private String bettingName;
 
-    private String homeOddsName;
-    private BigDecimal homeOdds;
+  private String homeOddsName;
+  private BigDecimal homeOdds;
 
-    private String awayOddsName;
-    private BigDecimal awayOdds;
-
+  private String awayOddsName;
+  private BigDecimal awayOdds;
 }

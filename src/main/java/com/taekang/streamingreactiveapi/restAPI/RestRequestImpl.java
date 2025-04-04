@@ -12,32 +12,32 @@ import reactor.core.publisher.Mono;
 @Service
 public class RestRequestImpl implements RestRequest {
 
-    private final WebClient webClient;
+  private final WebClient webClient;
 
-    @Autowired
-    public RestRequestImpl(WebClient.Builder webClientBuilder) {
-        this.webClient = webClientBuilder.build();
-    }
-    
-    @Override
-    public Mono<String> get(String url, HttpHeaders headers) {
+  @Autowired
+  public RestRequestImpl(WebClient.Builder webClientBuilder) {
+    this.webClient = webClientBuilder.build();
+  }
 
-        return webClient.get()
-                .uri(url)
-                .headers(httpHeaders -> httpHeaders.addAll(new HttpHeaders(headers))) // 기존 헤더 추가
-                .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError, response ->
-                        Mono.error(new RuntimeException("클라이언트 오류 발생: " + response.statusCode()))
-                )
-                .onStatus(HttpStatusCode::is5xxServerError, response ->
-                        Mono.error(new RuntimeException("서버 오류 발생: " + response.statusCode()))
-                )
-                .bodyToMono(String.class);
-    }
+  @Override
+  public Mono<String> get(String url, HttpHeaders headers) {
 
-    @Override
-    public Mono<String> delete(String url, HttpHeaders headers) {
-        return null;
-    }
+    return webClient
+        .get()
+        .uri(url)
+        .headers(httpHeaders -> httpHeaders.addAll(new HttpHeaders(headers))) // 기존 헤더 추가
+        .retrieve()
+        .onStatus(
+            HttpStatusCode::is4xxClientError,
+            response -> Mono.error(new RuntimeException("클라이언트 오류 발생: " + response.statusCode())))
+        .onStatus(
+            HttpStatusCode::is5xxServerError,
+            response -> Mono.error(new RuntimeException("서버 오류 발생: " + response.statusCode())))
+        .bodyToMono(String.class);
+  }
 
+  @Override
+  public Mono<String> delete(String url, HttpHeaders headers) {
+    return null;
+  }
 }

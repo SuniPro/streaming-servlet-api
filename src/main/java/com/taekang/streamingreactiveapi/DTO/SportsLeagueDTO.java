@@ -11,24 +11,24 @@ import lombok.ToString;
 @ToString
 public class SportsLeagueDTO {
 
-    private Long id;
+  private Long id;
 
-    private String channelName;
+  private String channelName;
 
-    private String liveTitle;
+  private String liveTitle;
 
-    private String thumbnailUrl;
+  private String thumbnailUrl;
 
-    private SportsType sportsType;
+  private SportsType sportsType;
 
-    private String sportsTypeSub;
-    private String leagueName;
-    private String streamUrl;
-    private String streamUrlSub;
-    private LocalDateTime leagueDate;
+  private String sportsTypeSub;
+  private String leagueName;
+  private String streamUrl;
+  private String streamUrlSub;
+  private LocalDateTime leagueDate;
 
-    private String homeName;
-    private String awayName;
-    private boolean important;
-    private boolean live;
+  private String homeName;
+  private String awayName;
+  private boolean important;
+  private boolean live;
 }

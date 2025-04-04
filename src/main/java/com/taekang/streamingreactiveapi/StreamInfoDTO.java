@@ -8,6 +8,6 @@ import lombok.ToString;
 @Getter
 @ToString
 public class StreamInfoDTO {
-    private String leagueName;
-    private String streamsUrl;
+  private String leagueName;
+  private String streamsUrl;
 }
