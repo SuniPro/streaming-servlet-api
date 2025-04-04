@@ -32,7 +32,8 @@ public class StreamingSiteFetcherService {
   private final WebClient webClient;
 
   @Autowired
-  public StreamingSiteFetcherService(RestRequest restRequest, ObjectMapper objectMapper, WebClient.Builder webClientBuilder) {
+  public StreamingSiteFetcherService(
+      RestRequest restRequest, ObjectMapper objectMapper, WebClient.Builder webClientBuilder) {
     this.restRequest = restRequest;
     this.objectMapper = objectMapper;
     this.webClient = webClientBuilder.build();
@@ -41,14 +42,15 @@ public class StreamingSiteFetcherService {
   public Mono<String> getSoopStreamingUrl(String inputUrl) throws URISyntaxException {
     String bjName = Tools.getPathSegments(inputUrl, 1);
     String bjNumber = Tools.getPathSegments(inputUrl, 2);
-    
+
     return fetchAid(bjName, bjNumber)
-            .zipWith(fetchCdnInfo(bjName, bjNumber)) // aid + cdn/bno 같이 요청
-            .flatMap(tuple -> {
+        .zipWith(fetchCdnInfo(bjName, bjNumber)) // aid + cdn/bno 같이 요청
+        .flatMap(
+            tuple -> {
               String aid = tuple.getT1();
               CdnMeta cdnMeta = tuple.getT2();
               return fetchViewUrl(cdnMeta)
-                      .flatMap(viewBaseUrl -> fetch1080pUrlFromAid(aid, viewBaseUrl));
+                  .flatMap(viewBaseUrl -> fetch1080pUrlFromAid(aid, viewBaseUrl));
             });
   }
 
@@ -56,15 +58,17 @@ public class StreamingSiteFetcherService {
 
     String postUrl = "https://live.sooplive.co.kr/afreeca/player_live_api.php?bjid=" + bjName;
 
-    return webClient.post()
-            .uri(postUrl)
-            .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-            .body(BodyInserters.fromFormData(buildFormData(bjName, bjNumber, "live")))
-            .retrieve()
-            .bodyToMono(String.class)
-            .map(body -> {
+    return webClient
+        .post()
+        .uri(postUrl)
+        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+        .body(BodyInserters.fromFormData(buildFormData(bjName, bjNumber, "live")))
+        .retrieve()
+        .bodyToMono(String.class)
+        .map(
+            body -> {
               try {
-                JsonNode root =objectMapper.readTree(body);
+                JsonNode root = objectMapper.readTree(body);
                 String cdn = root.path("CHANNEL").path("CDN").asText();
                 String bno = root.path("CHANNEL").path("BNO").asText();
                 return new CdnMeta(cdn, bno);
@@ -77,13 +81,15 @@ public class StreamingSiteFetcherService {
   private Mono<String> fetchAid(String bjName, String bjNumber) {
     String postUrl = "https://live.sooplive.co.kr/afreeca/player_live_api.php?bjid=" + bjName;
 
-    return webClient.post()
-            .uri(postUrl)
-            .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-            .body(BodyInserters.fromFormData(buildFormData(bjName, bjNumber, "aid")))
-            .retrieve()
-            .bodyToMono(String.class)
-            .map(body -> {
+    return webClient
+        .post()
+        .uri(postUrl)
+        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+        .body(BodyInserters.fromFormData(buildFormData(bjName, bjNumber, "aid")))
+        .retrieve()
+        .bodyToMono(String.class)
+        .map(
+            body -> {
               try {
                 return objectMapper.readTree(body).path("CHANNEL").path("AID").asText();
               } catch (Exception e) {
@@ -106,7 +112,6 @@ public class StreamingSiteFetcherService {
     return formData;
   }
 
-
   record CdnMeta(String cdnType, String bjNumber) {
     String getBroadKey() {
       return bjNumber + "-common-master-hls";
@@ -114,20 +119,25 @@ public class StreamingSiteFetcherService {
   }
 
   private Mono<String> fetchViewUrl(CdnMeta cdnMeta) {
-    String url = UriComponentsBuilder
-            .fromHttpUrl("https://livestream-manager.sooplive.co.kr/broad_stream_assign.html")
-            .queryParam("return_type", Objects.equals(cdnMeta.cdnType(), "") ? "gcp_cdn" : cdnMeta.cdnType())
+    String url =
+        UriComponentsBuilder.fromHttpUrl(
+                "https://livestream-manager.sooplive.co.kr/broad_stream_assign.html")
+            .queryParam(
+                "return_type",
+                Objects.equals(cdnMeta.cdnType(), "") ? "gcp_cdn" : cdnMeta.cdnType())
             .queryParam("use_cors", true)
             .queryParam("cors_origin_url", "play.sooplive.co.kr")
             .queryParam("broad_key", cdnMeta.getBroadKey())
             .queryParam("player_mode", "landing")
             .toUriString();
 
-    return webClient.get()
-            .uri(url)
-            .retrieve()
-            .bodyToMono(String.class)
-            .map(body -> {
+    return webClient
+        .get()
+        .uri(url)
+        .retrieve()
+        .bodyToMono(String.class)
+        .map(
+            body -> {
               try {
                 JsonNode node = objectMapper.readTree(body);
                 String viewUrl = node.path("view_url").asText(); // 전체 URL
@@ -139,33 +149,38 @@ public class StreamingSiteFetcherService {
   }
 
   private Mono<String> fetch1080pUrlFromAid(String aid, String baseUrl) {
-    String masterUrl = UriComponentsBuilder.fromHttpUrl(baseUrl + "auth_master_playlist.m3u8").queryParam("aid", aid).toUriString();
-    return webClient.get()
-            .uri(masterUrl)
-            .retrieve()
-            .bodyToMono(String.class)
-            .doOnNext(body -> log.info("🎯 master.m3u8 응답:\n{}", body))
-            .flatMapMany(body -> Flux.fromArray(body.split("\n")))
-            .map(String::trim)
-            .index()
-            .buffer(2, 1)
-            .filter(pair -> {
+    String masterUrl =
+        UriComponentsBuilder.fromHttpUrl(baseUrl + "auth_master_playlist.m3u8")
+            .queryParam("aid", aid)
+            .toUriString();
+    return webClient
+        .get()
+        .uri(masterUrl)
+        .retrieve()
+        .bodyToMono(String.class)
+        .doOnNext(body -> log.info("🎯 master.m3u8 응답:\n{}", body))
+        .flatMapMany(body -> Flux.fromArray(body.split("\n")))
+        .map(String::trim)
+        .index()
+        .buffer(2, 1)
+        .filter(
+            pair -> {
               if (pair.size() < 2) return false;
               String currentLine = pair.get(0).getT2();
               String nextLine = pair.get(1).getT2();
               return currentLine.contains("RESOLUTION=1920x1080")
-                      && nextLine.startsWith("auth_playlist.m3u8?aid=");
+                  && nextLine.startsWith("auth_playlist.m3u8?aid=");
             })
-            .next()
-            .map(pair -> pair.get(1).getT2().trim())
-            .map(suffix -> {
+        .next()
+        .map(pair -> pair.get(1).getT2().trim())
+        .map(
+            suffix -> {
               // 🔥 baseUrl에서 마지막 부분만 제거해서 suffix 붙이기
               String finalUrl = baseUrl + suffix;
               log.info("🎬 최종 m3u8 URL: {}", finalUrl);
               return finalUrl;
             });
   }
-
 
   public Mono<String> getChzzkStreamingUrl(String url) {
     HttpHeaders headers = new HttpHeaders();

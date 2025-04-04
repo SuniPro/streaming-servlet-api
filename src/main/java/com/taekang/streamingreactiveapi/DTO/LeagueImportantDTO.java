@@ -8,6 +8,6 @@ import lombok.ToString;
 @Getter
 @ToString
 public class LeagueImportantDTO {
-    private Long id;
-    private boolean important;
+  private Long id;
+  private boolean important;
 }

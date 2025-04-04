@@ -20,8 +20,7 @@ public class LeagueController {
   private final SportsLeagueInfoService sportsLeagueInfoService;
 
   @Autowired
-  public LeagueController(
-      SportsLeagueInfoService sportsLeagueInfoService) {
+  public LeagueController(SportsLeagueInfoService sportsLeagueInfoService) {
     this.sportsLeagueInfoService = sportsLeagueInfoService;
   }
 
@@ -34,14 +33,13 @@ public class LeagueController {
 
   @PostMapping("update/important")
   public Mono<SportsLeague> updateLeagueImportant(
-          @RequestBody LeagueImportantDTO leagueImportantDTO) {
+      @RequestBody LeagueImportantDTO leagueImportantDTO) {
 
     return sportsLeagueInfoService.updateImportant(leagueImportantDTO);
   }
 
   @PostMapping("update/live")
-  public Mono<SportsLeague> updateLeagueLive(
-          @RequestBody LeagueLiveDTO leagueLiveDTO) {
+  public Mono<SportsLeague> updateLeagueLive(@RequestBody LeagueLiveDTO leagueLiveDTO) {
 
     return sportsLeagueInfoService.updateLive(leagueLiveDTO);
   }
@@ -52,12 +50,14 @@ public class LeagueController {
   }
 
   @GetMapping("read/live/all/{page}/{size}")
-  public Mono<List<SportsLeagueDTO>> getAllLeagueInfoIsLive(@PathVariable int page, @PathVariable int size) {
+  public Mono<List<SportsLeagueDTO>> getAllLeagueInfoIsLive(
+      @PathVariable int page, @PathVariable int size) {
     return sportsLeagueInfoService.getAllSportsLeagueIsLive(page, size);
   }
 
   @GetMapping("read/all/{page}/{size}")
-  public Mono<List<SportsLeagueDTO>> getAllLeagueInfo(@PathVariable int page, @PathVariable int size) {
+  public Mono<List<SportsLeagueDTO>> getAllLeagueInfo(
+      @PathVariable int page, @PathVariable int size) {
     return sportsLeagueInfoService.getAllSportsLeague(page, size);
   }
 
@@ -76,5 +76,4 @@ public class LeagueController {
   public Mono<Void> deleteLeagueInfoById(@PathVariable Long id) {
     return sportsLeagueInfoService.deleteLeagueInfoById(id);
   }
-
 }

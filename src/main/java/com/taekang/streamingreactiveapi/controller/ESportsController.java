@@ -10,15 +10,16 @@ import reactor.core.publisher.Mono;
 @RequestMapping("esports")
 public class ESportsController {
 
-    private final ESportsService esportsService;
+  private final ESportsService esportsService;
 
-    @Autowired
-    public ESportsController(ESportsService esportsService) {
-        this.esportsService = esportsService;
-    }
+  @Autowired
+  public ESportsController(ESportsService esportsService) {
+    this.esportsService = esportsService;
+  }
 
-    @GetMapping("lol/get/{playerName}/{tag}")
-    public Mono<ESportsPlayerInfoDTO> getPlayerInfo(@PathVariable String playerName, @PathVariable String tag) {
-        return esportsService.getPlayerInfoRecentTwenty(playerName, tag);
-    }
+  @GetMapping("lol/get/{playerName}/{tag}")
+  public Mono<ESportsPlayerInfoDTO> getPlayerInfo(
+      @PathVariable String playerName, @PathVariable String tag) {
+    return esportsService.getPlayerInfoRecentTwenty(playerName, tag);
+  }
 }

@@ -9,8 +9,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class StreamingReactiveApiApplication {
 
-    public static void main(String[] args) {
-        log.info("Application started Start Time : {}", LocalDateTime.now());
-        SpringApplication.run(StreamingReactiveApiApplication.class, args);
-    }
+  public static void main(String[] args) {
+    log.info("Application started Start Time : {}", LocalDateTime.now());
+    SpringApplication.run(StreamingReactiveApiApplication.class, args);
+  }
 }

@@ -77,7 +77,10 @@ public class ESportsServiceImpl implements ESportsService {
                                       .flatMap(streamingSiteFetcherService::parseJsonToMap)
                                       .flatMap(
                                           matchJson -> {
-                                              log.info("matchId: {} matchDetailUrl: {}", matchId, matchDetailUrl);
+                                            log.info(
+                                                "matchId: {} matchDetailUrl: {}",
+                                                matchId,
+                                                matchDetailUrl);
                                             Map<String, Object> metadata =
                                                 (Map<String, Object>) matchJson.get("metadata");
                                             List<String> participants =
