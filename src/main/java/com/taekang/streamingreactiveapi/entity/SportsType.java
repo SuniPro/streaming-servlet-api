@@ -11,5 +11,6 @@ public enum SportsType {
   ESPORTS,
   PINGPONG,
   UFC,
+  HANDBALL,
   ETC
 }
