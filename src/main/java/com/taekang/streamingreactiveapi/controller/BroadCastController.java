@@ -88,6 +88,7 @@ public class BroadCastController {
         new String(Base64.getUrlDecoder().decode(encodedBase), StandardCharsets.UTF_8);
     String originUrl = baseCdnUrl + tsPath;
 
+    log.info("📥 TS 프록시 요청 수신: {}", request.getURI());
     log.info("🎯 [proxy] TS 요청 시작: {}", originUrl);
 
     return webClient
