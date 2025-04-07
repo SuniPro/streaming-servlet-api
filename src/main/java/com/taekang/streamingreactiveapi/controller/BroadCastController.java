@@ -38,10 +38,19 @@ public class BroadCastController {
         .uri(url)
         .retrieve()
         .bodyToMono(String.class)
+        .doOnSubscribe(sub -> log.info("🚀 [M3U8] 요청 준비 시작: {}", url))
+        .doOnRequest(request -> log.info("📡 [M3U8] WebClient 요청 시작: {}", url))
+        .doOnSuccess(resp -> log.info("✅ [M3U8] 응답 수신 완료"))
+        .doOnError(error -> log.error("❌ [M3U8] 요청 실패: {} | {}", url, error.getMessage(), error))
+        .elapsed()
         .map(
-            originalM3u8 -> {
+            tuple -> {
+              long duration = tuple.getT1(); // 요청 → 응답까지 걸린 시간 (ms)
+              String result = tuple.getT2();
+
+              // .ts 세그먼트 경로 프록시 처리
               String rewritten =
-                  Arrays.stream(originalM3u8.split("\n"))
+                  Arrays.stream(result.split("\n"))
                       .map(String::trim)
                       .map(
                           line -> {
@@ -51,6 +60,15 @@ public class BroadCastController {
                             return line;
                           })
                       .collect(Collectors.joining("\n"));
+
+              long tsCount =
+                  Arrays.stream(result.split("\n"))
+                      .map(String::trim)
+                      .filter(line -> line.toLowerCase().endsWith(".ts"))
+                      .count();
+
+              log.info("📦 [M3U8] 포함된 TS 세그먼트 수: {}", tsCount);
+              log.info("⏱️ [M3U8] {} 응답 시간: {}ms", url, duration);
 
               return ResponseEntity.ok()
                   .header(HttpHeaders.CONTENT_TYPE, "application/vnd.apple.mpegurl")
@@ -62,23 +80,34 @@ public class BroadCastController {
   @GetMapping("ts/{encodedBase}/**")
   public Mono<ResponseEntity<Flux<DataBuffer>>> proxyTsFile(
       @PathVariable String encodedBase, ServerHttpRequest request) {
-    // 전체 경로
     String fullPath = request.getURI().getPath();
     String basePrefix = "/broadcast/ts/" + encodedBase + "/";
-
-    // .ts 파일 경로 추출
     String tsPath = fullPath.substring(fullPath.indexOf(basePrefix) + basePrefix.length());
 
-    // base64 디코딩
     String baseCdnUrl =
         new String(Base64.getUrlDecoder().decode(encodedBase), StandardCharsets.UTF_8);
-
     String originUrl = baseCdnUrl + tsPath;
-    log.info("🎯 [proxy] originUrl: {}", originUrl);
 
-    return Mono.just(
-        ResponseEntity.ok()
-            .header(HttpHeaders.CONTENT_TYPE, "video/MP2T")
-            .body(webClient.get().uri(originUrl).retrieve().bodyToFlux(DataBuffer.class)));
+    log.info("🎯 [proxy] TS 요청 시작: {}", originUrl);
+
+    return webClient
+        .get()
+        .uri(originUrl)
+        .retrieve()
+        .bodyToFlux(DataBuffer.class)
+        .elapsed()
+        .map(
+            tuple -> {
+              long duration = tuple.getT1();
+              DataBuffer data = tuple.getT2();
+              log.info("⏱️ [proxy] TS 응답 시간: {}ms | {}", duration, tsPath);
+              return data;
+            })
+        .collectList()
+        .map(
+            list ->
+                ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_TYPE, "video/MP2T")
+                    .body(Flux.fromIterable(list)));
   }
 }
