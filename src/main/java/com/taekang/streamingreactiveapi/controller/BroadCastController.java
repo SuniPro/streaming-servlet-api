@@ -27,6 +27,7 @@ public class BroadCastController {
     this.webClient = webClientBuilder.build();
   }
 
+  /** m3u8의 내부 TS 조각들에 proxy 주소를 rewrite 하여 CORS 문제를 회피하게 합니다.*/
   @GetMapping("soop")
   public Mono<ResponseEntity<String>> getSoopStreamingUrl(@RequestParam String url) {
     String baseCdnUrl = url.substring(0, url.lastIndexOf("/") + 1);
@@ -77,7 +78,7 @@ public class BroadCastController {
             });
   }
 
-  // 🎯 실제 .ts 파일 프록시 처리
+  /** 프록시 된 TS 조각 들을 받아 하나의 TS 조각이 아닌, 받은 모든 TS 조각을 hls js가 재생시키게 합니다. */
   @GetMapping("ts/{encodedBase}/**")
   public Mono<ResponseEntity<Flux<DataBuffer>>> proxyTsFile(
       @PathVariable String encodedBase, ServerHttpRequest request) {
