@@ -27,7 +27,7 @@ public class BroadCastController {
     this.webClient = webClientBuilder.build();
   }
 
-  /** m3u8의 내부 TS 조각들에 proxy 주소를 rewrite 하여 CORS 문제를 회피하게 합니다.*/
+  /** m3u8의 내부 TS 조각들에 proxy 주소를 rewrite 하여 CORS 문제를 회피하게 합니다. */
   @GetMapping("soop")
   public Mono<ResponseEntity<String>> getSoopStreamingUrl(@RequestParam String url) {
     String baseCdnUrl = url.substring(0, url.lastIndexOf("/") + 1);
