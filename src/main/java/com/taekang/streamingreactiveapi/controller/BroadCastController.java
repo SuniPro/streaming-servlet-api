@@ -81,6 +81,7 @@ public class BroadCastController {
   @GetMapping("ts/{encodedBase}/**")
   public Mono<ResponseEntity<Flux<DataBuffer>>> proxyTsFile(
       @PathVariable String encodedBase, ServerHttpRequest request) {
+    log.info("📥 TS 프록시 진입");
     String fullPath = request.getURI().getPath();
     String basePrefix = "/broadcast/ts/" + encodedBase + "/";
     String tsPath = fullPath.substring(fullPath.indexOf(basePrefix) + basePrefix.length());
@@ -110,6 +111,7 @@ public class BroadCastController {
             list ->
                 ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_TYPE, "video/MP2T")
-                    .body(Flux.fromIterable(list)));
+                    .body(Flux.fromIterable(list)))
+        .doOnError(e -> log.error("❌ WebClient TS 요청 실패: {}", e.getMessage(), e));
   }
 }
