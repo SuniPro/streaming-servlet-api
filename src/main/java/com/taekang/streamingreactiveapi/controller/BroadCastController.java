@@ -111,6 +111,7 @@ public class BroadCastController {
             list ->
                 ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_TYPE, "video/MP2T")
-                    .body(Flux.fromIterable(list)));
+                    .body(Flux.fromIterable(list)))
+        .doOnError(e -> log.error("❌ WebClient TS 요청 실패: {}", e.getMessage(), e));
   }
 }
