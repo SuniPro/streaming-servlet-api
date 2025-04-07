@@ -93,18 +93,19 @@ public class BroadCastController {
     log.info("📥 TS 프록시 요청 수신: {}", request.getURI());
     log.info("🎯 [proxy] TS 요청 시작: {}", originUrl);
 
-      Flux<DataBuffer> tsBody = webClient.get()
-              .uri(originUrl)
-              .retrieve()
-              .bodyToFlux(DataBuffer.class)
-              .doOnNext(buf -> log.info("📦 [proxy] TS 데이터 수신 중: {}", tsPath))
-              .doOnError(e -> log.error("❌ TS 응답 실패: {}", e.getMessage(), e));
+    Flux<DataBuffer> tsBody =
+        webClient
+            .get()
+            .uri(originUrl)
+            .retrieve()
+            .bodyToFlux(DataBuffer.class)
+            .doOnNext(buf -> log.info("📦 [proxy] TS 데이터 수신 중: {}", tsPath))
+            .doOnError(e -> log.error("❌ TS 응답 실패: {}", e.getMessage(), e));
 
-
-      return Mono.just(
-              ResponseEntity.ok()
-                      .header(HttpHeaders.CONTENT_TYPE, "video/MP2T")
-                      .body(tsBody) // ❗ collectList 안 씀!!
-      );
+    return Mono.just(
+        ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_TYPE, "video/MP2T")
+            .body(tsBody) // ❗ collectList 안 씀!!
+        );
   }
 }
