@@ -27,6 +27,7 @@ public class BroadCastController {
     this.webClient = webClientBuilder.build();
   }
 
+  /** m3u8의 내부 TS 조각들에 proxy 주소를 rewrite 하여 CORS 문제를 회피하게 합니다. */
   @GetMapping("soop")
   public Mono<ResponseEntity<String>> getSoopStreamingUrl(@RequestParam String url) {
     String baseCdnUrl = url.substring(0, url.lastIndexOf("/") + 1);
@@ -77,7 +78,7 @@ public class BroadCastController {
             });
   }
 
-  // 🎯 실제 .ts 파일 프록시 처리
+  /** 프록시 된 TS 조각 들을 받아 하나의 TS 조각이 아닌, 받은 모든 TS 조각을 hls js가 재생시키게 합니다. */
   @GetMapping("ts/{encodedBase}/**")
   public Mono<ResponseEntity<Flux<DataBuffer>>> proxyTsFile(
       @PathVariable String encodedBase, ServerHttpRequest request) {
@@ -93,25 +94,19 @@ public class BroadCastController {
     log.info("📥 TS 프록시 요청 수신: {}", request.getURI());
     log.info("🎯 [proxy] TS 요청 시작: {}", originUrl);
 
-    return webClient
-        .get()
-        .uri(originUrl)
-        .retrieve()
-        .bodyToFlux(DataBuffer.class)
-        .elapsed()
-        .map(
-            tuple -> {
-              long duration = tuple.getT1();
-              DataBuffer data = tuple.getT2();
-              log.info("⏱️ [proxy] TS 응답 시간: {}ms | {}", duration, tsPath);
-              return data;
-            })
-        .collectList()
-        .map(
-            list ->
-                ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_TYPE, "video/MP2T")
-                    .body(Flux.fromIterable(list)))
-        .doOnError(e -> log.error("❌ WebClient TS 요청 실패: {}", e.getMessage(), e));
+    Flux<DataBuffer> tsBody =
+        webClient
+            .get()
+            .uri(originUrl)
+            .retrieve()
+            .bodyToFlux(DataBuffer.class)
+            .doOnNext(buf -> log.info("📦 [proxy] TS 데이터 수신 중: {}", tsPath))
+            .doOnError(e -> log.error("❌ TS 응답 실패: {}", e.getMessage(), e));
+
+    return Mono.just(
+        ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_TYPE, "video/MP2T")
+            .body(tsBody) // ❗ collectList 안 씀!!
+        );
   }
 }
