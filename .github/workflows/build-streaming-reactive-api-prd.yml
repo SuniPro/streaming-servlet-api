@@ -45,4 +45,4 @@ jobs:
             docker pull perasperaadastra250225/streaming-reactive-api:1.0.0
             docker stop streaming-reactive-api || true
             docker rm streaming-reactive-api || true
-            docker run -d -p 8070:8070 --restart unless-stopped --name streaming-reactive-api perasperaadastra250225/streaming-reactive-api:1.0.0
+            docker run -d -p 8070:8070 --restart unless-stopped -v /home/ec2-user/streaming-reactive-api-log:/app/log --name streaming-reactive-api perasperaadastra250225/streaming-reactive-api:1.0.0
