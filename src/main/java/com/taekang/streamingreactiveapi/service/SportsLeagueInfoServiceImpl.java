@@ -8,7 +8,6 @@ import com.taekang.streamingreactiveapi.repository.leagueInfo.SportsLeagueBettin
 import com.taekang.streamingreactiveapi.repository.leagueInfo.SportsLeagueRepository;
 import io.r2dbc.spi.R2dbcException;
 import java.net.URISyntaxException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -243,13 +242,11 @@ public class SportsLeagueInfoServiceImpl implements SportsLeagueInfoService {
   public Mono<List<SportsLeagueDTO>> getAllSportsLeagueIsLive(int page, int size) {
     try {
       int offset = page * size;
-      LocalDate yesterday = LocalDate.now().minusDays(1);
-
       return r2dbcEntityTemplate
           .select(SportsLeague.class)
           .matching(
               Query.query(Criteria.where("live").isTrue())
-                  .sort(Sort.by(Sort.Order.desc("league_date")).and(Sort.by(Sort.Order.desc("id"))))
+                  .sort(Sort.by(Sort.Order.asc("id")).and(Sort.by(Sort.Order.asc("league_date"))))
                   .limit(size)
                   .offset(offset))
           .all()
@@ -271,7 +268,7 @@ public class SportsLeagueInfoServiceImpl implements SportsLeagueInfoService {
           .select(SportsLeague.class)
           .matching(
               Query.query(Criteria.empty())
-                  .sort(Sort.by(Sort.Order.desc("league_date")).and(Sort.by(Sort.Order.desc("id"))))
+                  .sort(Sort.by(Sort.Order.asc("league_date")))
                   .limit(size)
                   .offset(offset))
           .all()
