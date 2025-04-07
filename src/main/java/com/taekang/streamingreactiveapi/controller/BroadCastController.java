@@ -66,7 +66,8 @@ public class BroadCastController {
                       .map(String::trim)
                       .filter(line -> line.toLowerCase().endsWith(".ts"))
                       .count();
-
+              log.info(
+                  "📄 [M3U8 리턴 Preview] ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓\n{}\n↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑", rewritten);
               log.info("📦 [M3U8] 포함된 TS 세그먼트 수: {}", tsCount);
               log.info("⏱️ [M3U8] {} 응답 시간: {}ms", url, duration);
 
