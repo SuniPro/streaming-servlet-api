@@ -8,7 +8,6 @@ import com.taekang.streamingreactiveapi.repository.leagueInfo.SportsLeagueBettin
 import com.taekang.streamingreactiveapi.repository.leagueInfo.SportsLeagueRepository;
 import io.r2dbc.spi.R2dbcException;
 import java.net.URISyntaxException;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
@@ -49,7 +48,6 @@ public class SportsLeagueInfoServiceImpl implements SportsLeagueInfoService {
   @Override
   public Flux<PerfectSportsLeagueDTO> createSportsLeague(
       List<PerfectSportsLeagueDTO> perfectSportsLeagueDTOList) {
-    LocalDateTime leagueDate = LocalDateTime.now();
 
     return Flux.fromIterable(perfectSportsLeagueDTOList)
         .flatMap(
@@ -77,7 +75,7 @@ public class SportsLeagueInfoServiceImpl implements SportsLeagueInfoService {
                             .sportsType(dto.getSportsType())
                             .sportsTypeSub(dto.getSportsTypeSub())
                             .streamUrl(streamUrl)
-                            .leagueDate(leagueDate)
+                            .leagueDate(dto.getLeagueDate())
                             .leagueName(dto.getLeagueName())
                             .homeName(dto.getHomeName())
                             .awayName(dto.getAwayName())
