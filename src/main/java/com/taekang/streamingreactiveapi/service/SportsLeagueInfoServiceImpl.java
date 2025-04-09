@@ -52,18 +52,24 @@ public class SportsLeagueInfoServiceImpl implements SportsLeagueInfoService {
     return Flux.fromIterable(perfectSportsLeagueDTOList)
         .flatMap(
             dto -> {
-              Mono<String> streamUrlMono =
-                  dto.getStreamUrl().contains("chzzk")
-                      ? streamingSiteFetcherService.getChzzkStreamingUrl(dto.getStreamUrl())
-                      : Mono.defer(
-                          () -> {
-                            try {
-                              return streamingSiteFetcherService.getSoopStreamingUrl(
-                                  dto.getStreamUrl());
-                            } catch (URISyntaxException e) {
-                              return Mono.error(new RuntimeException(e));
-                            }
-                          });
+              Mono<String> streamUrlMono;
+              if (dto.getStreamUrl().contains("chzzk")) {
+                streamUrlMono =
+                    streamingSiteFetcherService.getChzzkStreamingUrl(dto.getStreamUrl());
+              } else if (dto.getStreamUrl().contains("soop")) {
+                streamUrlMono =
+                    Mono.defer(
+                        () -> {
+                          try {
+                            return streamingSiteFetcherService.getSoopStreamingUrl(
+                                dto.getStreamUrl());
+                          } catch (URISyntaxException e) {
+                            return Mono.error(new RuntimeException(e));
+                          }
+                        });
+              } else {
+                streamUrlMono = Mono.just(dto.getStreamUrl());
+              }
 
               return streamUrlMono.flatMap(
                   streamUrl -> {
