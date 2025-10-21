@@ -105,7 +105,7 @@ public class SportsLeagueInfoServiceImpl implements SportsLeagueInfoService {
                                           bettingDTO ->
                                               SportsLeagueBetting.builder()
                                                   .sportsLeagueId(savedLeague.getId())
-                                                  .bettingType(bettingDTO.getBettingType())
+                                                  .betType(bettingDTO.getBettingType())
                                                   .bettingName(bettingDTO.getBettingName())
                                                   .homeOddsName(bettingDTO.getHomeOddsName())
                                                   .awayOddsName(bettingDTO.getAwayOddsName())
@@ -215,7 +215,7 @@ public class SportsLeagueInfoServiceImpl implements SportsLeagueInfoService {
                               SportsLeagueBetting.builder()
                                   .id(sportsLeagueBettingDTO.getId())
                                   .sportsLeagueId(league.getId())
-                                  .bettingType(sportsLeagueBettingDTO.getBettingType())
+                                  .betType(sportsLeagueBettingDTO.getBettingType())
                                   .bettingName(sportsLeagueBettingDTO.getBettingName())
                                   .homeOdds(sportsLeagueBettingDTO.getHomeOdds())
                                   .homeOddsName(sportsLeagueBettingDTO.getHomeOddsName())
@@ -367,7 +367,7 @@ public class SportsLeagueInfoServiceImpl implements SportsLeagueInfoService {
                                       betting ->
                                           SportsLeagueBettingDTO.builder()
                                               .sportsLeagueId(betting.getSportsLeagueId())
-                                              .bettingType(betting.getBettingType())
+                                              .bettingType(betting.getBetType())
                                               .bettingName(betting.getBettingName())
                                               .homeOdds(betting.getHomeOdds())
                                               .homeOddsName(betting.getHomeOddsName())

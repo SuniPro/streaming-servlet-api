@@ -1,10 +1,11 @@
 package com.taekang.streamingreactiveapi.entity;
 
-import java.time.LocalDateTime;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
+
+import java.time.LocalDateTime;
 
 @Table("sports_league")
 @Getter
@@ -36,14 +37,14 @@ public class SportsLeague {
   @Column("league_name")
   private String leagueName;
 
+  @Column("league_date")
+  private LocalDateTime leagueDate;
+
   @Column("stream_url")
   private String streamUrl;
 
   @Column("stream_url_sub")
   private String streamUrlSub;
-
-  @Column("league_date")
-  private LocalDateTime leagueDate;
 
   @Column("home_name")
   private String homeName;
