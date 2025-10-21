@@ -33,7 +33,7 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-          docker buildx build --platform linux/amd64 -t perasperaadastra250225/streaming-reactive-api:1.0.0 --push .
+          docker buildx build --platform linux/amd64 -t sosunhyeun/streaming-reactive-api:1.0.0 --push .
 
       - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@v1.0.0
@@ -42,7 +42,7 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
-            docker pull perasperaadastra250225/streaming-reactive-api:1.0.0
+            docker pull sosunhyeun/streaming-reactive-api:1.0.0
             docker stop streaming-reactive-api || true
             docker rm streaming-reactive-api || true
-            docker run -d -p 8070:8070 --restart unless-stopped -v /home/ec2-user/streaming-reactive-api-log:/app/log --name streaming-reactive-api perasperaadastra250225/streaming-reactive-api:1.0.0
+            docker run -d -p 8070:8070 --restart unless-stopped -v /home/ec2-user/streaming-reactive-api-log:/app/log --name streaming-reactive-api sosunhyeun/streaming-reactive-api:1.0.0
