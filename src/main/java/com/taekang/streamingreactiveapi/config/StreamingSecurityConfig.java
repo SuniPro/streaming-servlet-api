@@ -11,15 +11,15 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 @EnableWebFluxSecurity
 @EnableReactiveMethodSecurity
 public class StreamingSecurityConfig {
-    private static final String[] AUTH_WHITELIST = {"/user/**"};
+  private static final String[] AUTH_WHITELIST = {"/user/**"};
 
-    @Bean
-    public SecurityWebFilterChain gamingServerFilterChain(ServerHttpSecurity http) {
+  @Bean
+  public SecurityWebFilterChain gamingServerFilterChain(ServerHttpSecurity http) {
 
-        http.csrf(ServerHttpSecurity.CsrfSpec::disable)
-                .authorizeExchange(authorize -> authorize.anyExchange().permitAll())
-                .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
-                .formLogin(ServerHttpSecurity.FormLoginSpec::disable);
-        return http.build();
-    }
+    http.csrf(ServerHttpSecurity.CsrfSpec::disable)
+        .authorizeExchange(authorize -> authorize.anyExchange().permitAll())
+        .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
+        .formLogin(ServerHttpSecurity.FormLoginSpec::disable);
+    return http.build();
+  }
 }
