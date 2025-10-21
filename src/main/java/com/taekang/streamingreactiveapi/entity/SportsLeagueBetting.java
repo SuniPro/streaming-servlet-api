@@ -24,7 +24,7 @@ public class SportsLeagueBetting {
   private Long sportsLeagueId;
 
   @Column("betting_type")
-  private String bettingType;
+  private String betType;
 
   @Column("betting_name")
   private String bettingName;

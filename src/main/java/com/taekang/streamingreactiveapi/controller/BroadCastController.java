@@ -42,7 +42,6 @@ public class BroadCastController {
         .elapsed()
         .map(
             tuple -> {
-              long duration = tuple.getT1(); // 요청 → 응답까지 걸린 시간 (ms)
               String result = tuple.getT2();
 
               // .ts 세그먼트 경로 프록시 처리
@@ -57,12 +56,6 @@ public class BroadCastController {
                             return line;
                           })
                       .collect(Collectors.joining("\n"));
-
-              long tsCount =
-                  Arrays.stream(result.split("\n"))
-                      .map(String::trim)
-                      .filter(line -> line.toLowerCase().endsWith(".ts"))
-                      .count();
 
               return ResponseEntity.ok()
                   .header(HttpHeaders.CONTENT_TYPE, "application/vnd.apple.mpegurl")

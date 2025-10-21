@@ -36,14 +36,14 @@ public class SportsLeague {
   @Column("league_name")
   private String leagueName;
 
+  @Column("league_date")
+  private LocalDateTime leagueDate;
+
   @Column("stream_url")
   private String streamUrl;
 
   @Column("stream_url_sub")
   private String streamUrlSub;
-
-  @Column("league_date")
-  private LocalDateTime leagueDate;
 
   @Column("home_name")
   private String homeName;
