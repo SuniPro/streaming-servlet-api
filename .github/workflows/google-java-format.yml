@@ -3,7 +3,7 @@ name: Google Java Formatter
 on: pull_request
 
 permissions:
-  contents: write  # ✅ GitHub Actions에서 git push 권한 부여
+  contents: write
 
 jobs:
   format:
